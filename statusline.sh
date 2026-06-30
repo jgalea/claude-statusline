@@ -35,6 +35,7 @@ ctx_size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
 five_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
 five_resets_at=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 week_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
+week_resets_at=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 
 added=$(echo "$input" | jq -r '.cost.total_lines_added // empty')
 removed=$(echo "$input" | jq -r '.cost.total_lines_removed // empty')
@@ -84,7 +85,18 @@ fi
 
 if [ -n "$week_pct" ]; then
   w=$(printf '%.0f' "$week_pct")
-  parts+=("$(colorpct "$w" 70 90)7d:${w}%${RESET}")
+  lbl="$(colorpct "$w" 70 90)7d:${w}%${RESET}"
+  # countdown to weekly reset (days/hours, since it's usually far out)
+  if [ -n "$week_resets_at" ]; then
+    secs=$(( week_resets_at - $(date +%s) ))
+    if [ "$secs" -gt 0 ]; then
+      d=$(( secs / 86400 )); h=$(( (secs % 86400) / 3600 ))
+      if [ "$d" -gt 0 ]; then rel="in ${d}d${h}h"
+      else m=$(( (secs % 3600) / 60 )); rel="in ${h}h${m}m"; fi
+      lbl="$lbl ${DIM}${rel}${RESET}"
+    fi
+  fi
+  parts+=("$lbl")
 fi
 
 if [ -n "$added" ] || [ -n "$removed" ]; then
