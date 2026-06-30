@@ -9,10 +9,10 @@
 
 </div>
 
-It reads the session JSON that Claude Code pipes to stdin and prints a single colored line: working directory, git branch, model, context usage, rate limits, lines changed, and session cost. Everything degrades gracefully, so missing fields just drop out instead of breaking the line.
+It reads the session JSON that Claude Code pipes to stdin and prints a single colored line: working directory, git branch, model, output style, context usage and headroom, rate limits with reset countdowns, lines changed, session cost and burn rate, and a wall clock. Everything degrades gracefully, so missing fields just drop out instead of breaking the line.
 
 ```
-pa (main*) | Opus 4.8 high | ctx:42% | 5h:73% resets 21:16 | 7d:21% | +156/-23 | $1.23
+pa (main*) | Opus 4.8 high Explanatory | ctx:42% 118k left | 5h:73% in 1h12m | 7d:21% | +156/-23 | $1.23 $1.7/h | 21:16
 ```
 
 The percentages are color-coded so you can read state at a glance instead of parsing numbers: green when there's headroom, yellow as you approach a limit, red when you're close.
@@ -59,12 +59,13 @@ Start a new Claude Code session and the line appears at the bottom.
 | Segment | Source | Notes |
 |---|---|---|
 | `pa (main*)` | working dir + git | `*` means uncommitted changes |
-| `Opus 4.8 high` | model + reasoning effort | effort hidden when the model doesn't expose it |
-| `ctx:42%` | context window used | green below 50, yellow at 50, red at 80 |
-| `5h:73% resets 21:16` | 5-hour rate limit | reset time in your local clock |
+| `Opus 4.8 high Explanatory` | model, reasoning effort, output style | effort and style drop out when absent or default |
+| `ctx:42% 118k left` | context window used + headroom | green below 50, yellow at 50, red at 80; `left` is tokens remaining, so you know when to `/compact` |
+| `5h:73% in 1h12m` | 5-hour rate limit | countdown to reset |
 | `7d:21%` | 7-day rolling limit | green below 70, yellow at 70, red at 90 |
 | `+156/-23` | lines added / removed | hidden when nothing changed |
-| `$1.23` | estimated session cost | client-side estimate, includes subagents |
+| `$1.23 $1.7/h` | session cost + burn rate | client-side estimate; rate is cost ÷ session time, shown after ~1 min |
+| `21:16` | wall clock | local time |
 
 ## Customizing
 
