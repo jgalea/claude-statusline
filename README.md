@@ -1,6 +1,6 @@
 <div align="center">
 
-# claude-statusline
+<img src=".github/assets/header.png" alt="claude-statusline" width="760">
 
 [![License](https://img.shields.io/badge/LICENSE-MIT-5C9E31?style=for-the-badge)](LICENSE)
 [![Built by](https://img.shields.io/badge/BUILT%20BY-JEAN%20GALEA-8A2BE2?style=for-the-badge)](https://github.com/jgalea)
